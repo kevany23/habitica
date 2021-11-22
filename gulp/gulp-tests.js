@@ -40,11 +40,11 @@ const testBin = (string, additionalEnvVariables = '') => {
   return `NODE_ENV=test ${additionalEnvVariables} ${string}`;
 };
 
-function runInChildProcess (command, options = {}, envVariables = '') {
+function runInChildProcess(command, options = {}, envVariables = '') {
   return done => pipe(exec(testBin(command, envVariables), options, done));
 }
 
-function integrationTestCommand (testDir, coverageDir) {
+function integrationTestCommand(testDir, coverageDir) {
   return `istanbul cover --dir coverage/${coverageDir} --report lcovonly node_modules/mocha/bin/_mocha -- ${testDir} --recursive --require ./test/helpers/start-server`;
 }
 
@@ -197,3 +197,18 @@ gulp.task('test:api-v3', gulp.series(
   'test:api-v3:integration',
   done => done(),
 ));
+
+/*gulp.task('nodemon', done => {
+  nodemon({
+    script: pkg.main,
+  });
+  done();
+});*/
+
+gulp.task('nodemon:cov',
+  runInChildProcess('istanbul cover --dir coverage/selenium node_modules/mocha/bin/_mocha'));
+
+
+gulp.task('nodemon:test', runInChildProcess(
+  integrationTestCommand('test/selenium-server', 'coverage/selenium-server'))
+);
